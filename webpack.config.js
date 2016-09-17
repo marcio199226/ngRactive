@@ -1,7 +1,7 @@
 var webpack = require('webpack');
 
 module.exports = {
-  entry: './src/index.js',
+  entry: './index.js',
   resolve: {
     extensions: ["", ".js", ".styl"],
     modulesDirectories: ['src', 'bower_components', 'node_modules', 'vendors']

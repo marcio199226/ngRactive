@@ -10,7 +10,7 @@
     /* end of code for purpose */
 
     Ractive.components.RactiveGridComponent = Ractive.extend({
-        template: require('grid.tpl.html'),
+        template: require('./grid.tpl.html'),
         isolated: true,
         data: () => {
             return {
