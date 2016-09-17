@@ -1,0 +1,20 @@
+.sortorder:after {
+    content: '\25b2';
+}
+.sortorder.reverse:after {
+    content: '\25bc';
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+table .input-group .form-control {
+    width: auto !important;
+    /*min-width: 100px !important;*/
+    max-width: 120px;
+}
+
+table .input-group-addon, .input-group-btn {
+    width: auto !important;
+}

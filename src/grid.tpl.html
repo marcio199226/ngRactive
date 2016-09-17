@@ -1,0 +1,26 @@
+<div class="ractive-grid">
+    {{#loading}}Sto caricando...{{/loading}}
+    {{#!loading}}
+        {{#if rows.length > 0}}
+            <table class="table r-grid-table">
+                <thead>
+                    {{#each columns:column}}
+                        <th on-click='sortBy(column)' class="{{this.class}}">
+                        {{#if isFiltrable(column)}}
+                            <input type="text" value="{{filter.text}}" lazy="100" on-typing="" />
+                        {{else}}
+                            <span>{{name}}</span>
+                        {{/if}}
+                        <span {{#if column === sortByColumn}}class="sortorder {{#if reverse}} reverse{{/if}}"{{/if}}></span>
+                        </th>
+                    {{/each}}
+                </thead>
+                <tbody>
+                    {{>grid-body}}
+                <tbody>
+            </table>
+        {{else}}
+            <span>No data</span>
+        {{/if}}
+    {{/loading}}
+</div>

@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>PHP Contest</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <link href="./src/grid.css" rel="stylesheet">
+        <link href="./node_modules/ractive-decorators-spoilerBox/src/spoilerBox.css" rel="stylesheet">
+        <script   src="https://code.jquery.com/jquery-2.2.3.js"   integrity="sha256-laXWtGydpwqJ8JA+X9x2miwmaiKhn8tVmOVEigRNtP4="   crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+        <script src='http://cdn.ractivejs.org/latest/ractive.js'></script>
+        <script src="./node_modules/ractive-decorators-spoilerBox/src/ractive-decorators-spoilerBox.js"></script>
+        <script src="./index.min.js"></script>
+    </head>
+    <body>
+        <div class="container" ng-view></div>
+    </body>
+    <script>
+        angular.module('test', ['ngRoute', 'ngRactive'])
+            .config(function ($httpProvider, $locationProvider, $compileProvider, $routeProvider) {
+                $locationProvider.html5Mode(false);
+                
+                $routeProvider.
+                when('/', {
+                    template: [
+                        '<div class="row">',
+                            '<ng-ractive-component',
+                                'name="RDatepicker"',
+                                'components="components"',
+                                'props="propsDatepicker"',
+                                'watch-mode="values"',
+                                'config="config"',
+                                'two-way-props>',
+                            '</ng-ractive-component>',
+                            'AngularJS: {{propsDatepicker.date}}',
+                         '</div>',
+                        '<div class="row">',
+                            '<ng-ractive-component',
+                                'name="RStepper"',
+                                'props="propsStepper"',
+                                'watch-mode="values"',
+                                'config="config"',
+                                'two-way-props>',
+                            '</ng-ractive-component>',
+                            'AngularJS STEPPER: {{propsStepper.value}}',
+                         '</div>',
+                         '<div class="row">',
+                            '<ng-ractive-decorator name="RTooltipDecorator" config="config" />',
+                            '<ng-ractive-decorator name="RSpoilerBoxDecorator" config="config" />',
+                            'AngularJS: <input type="text" ng-model="input.text" />{{input.text}}<br>',
+                            '<ng-ractive-component',
+                                'name="RGridComponent"',
+                                'el-wrapper="stoCazzo"',
+                                'components="components"',
+                                'props="props"',
+                                'adaptors="adaptors"',
+                                'watch-mode="values"',
+                                'watch-prop="[\'columns\', \'filter\']"', // togliere se vogliamo il watch su tutto
+                                'two-way-props',
+                                'config="config">',
+                            '</ng-ractive-component>',
+                        '</div>'
+                    ].join(' '),
+                    controller: 'TestCTRL'
+                });
+            })
+            .directive('test', function () {
+                return {
+                    restrict: 'E',
+                    link: function ($scope, $element, $attrs) {
+                        $element.replaceWith('<p>' + $scope.props['nestedDirectivesText'] + '</p>');
+                        alert('Nested diective alert');
+                    }
+                }
+            })
+            .value('RTooltipDecorator', [
+                '<span decorator="tooltip:tooltip decorator">Tooltip</span>',
+            ].join(''))
+            .value('RSpoilerBoxDecorator', [
+                '<div decorator="spoilerBox">',
+                    '<div class="header">Test spoilerBox</div>',
+                    '<div class="content">',
+                        'fdsfdsjfldsjflsdf sdiljiljlfiids jlfjsdlf isflsdjlilfjls',
+                    '</div>',
+                '</div>',
+            ].join(''))
+            .value('RGridComponent', [
+                '<test />',
+                '<div class="container" decorator="tooltip:Test">',
+                    '<GridComponent columns="{{columns}}" rows="{{rows}}" filter="{{filter}}" filterCols="{{filterCols}}" loading="{{loading}}" sortByColumn="time">',
+                        '{{#partial grid-body}}',          
+                            '{{#each filteredRows:pos}}',
+                                '<tr>',
+                                    '<td>{{pos + 1}}</td>',
+                                    '<td>{{user}}</td>',
+                                    '<td>{{score}}</td>',
+                                    '<td>{{time}}</td>',
+                                '</tr>',
+                            '{{/each}}',
+                        '{{/partial}}', 
+                    '</GridComponent>',
+                '</div>'
+            ].join(''))
+            .value('RDatepicker', [
+                '<Datepicker date="{{date}}" class="compact" mode="{{mode}}" />'
+            ].join(''))
+            .value('RStepper', [
+                '<Stepper value="{{ value }}"></Stepper>'
+            ].join(''))
+            .controller("TestCTRL", function($scope, $timeout) {
+                $scope.input = {text: null};
+                
+                $scope.components = {
+                      GridComponent: Ractive.components.RactiveGridComponent,
+                      DatePicker: Ractive.components.Datepicker,
+                      Stepper: Ractive.components.Stepper
+                };
+                $scope.columns = {
+                    position: {
+                        name: 'Posizione',
+                        sortable: false,
+                        filtrable: false
+                    },
+                    user: {
+                        name: 'Utente',
+                        class: 'clickable',
+                        sortable: true,
+                        filtrable: false
+                    },
+                    score: {
+                        name: 'Punteggio',
+                        class: 'clickable',
+                        sortable: true,
+                        filtrable: false
+                    },
+                    time: {
+                        name: 'Tempo', 
+                        class: 'clickable',
+                        sortable: true,
+                        filtrable: false
+                    }
+                };
+                
+                $timeout(function() {
+                   $scope.columns.time.name = 'Tempooooo';
+                }, 3000);
+                
+                $scope.getData = (url) => {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            resolve([{"score":20,"time":"00:05:59","user":"Surian Marco"},{"score":19,"time":"00:05:42","user":"Cecchetti Luca"},{"score":19,"time":"00:16:13","user":"Zori\u0107 Bruno"},{"score":18,"time":"00:11:17","user":"Bordignon Lisa"},{"score":18,"time":"00:26:00","user":"Tassinari Matteo"},{"score":18,"time":"03:34:17","user":"KIBISH SERGEY"},{"score":17,"time":"00:07:58","user":"De Grandis Mirko"},{"score":17,"time":"00:09:42","user":"Orselli Michele"},{"score":17,"time":"00:11:31","user":"Arzentar Boris"},{"score":17,"time":"00:16:36","user":"BOZZINI FEDERICO"},{"score":17,"time":"00:16:50","user":"Naccari Massimo"},{"score":17,"time":"00:17:25","user":"Michno Maciej Michno"},{"score":17,"time":"00:19:44","user":"Dovgal Antony"},{"score":16,"time":"00:08:32","user":"Longiaru Simone"},{"score":16,"time":"00:11:51","user":"Toncev Ivan"},{"score":16,"time":"00:11:57","user":"Chitolina Alessandro"},{"score":16,"time":"00:13:31","user":"Pellizzari Alessandro"},{"score":16,"time":"00:15:22","user":"Manchi Matteo"},{"score":16,"time":"00:17:05","user":"Pisano Filippo"},{"score":16,"time":"00:23:53","user":"Obradovic Ivan"},{"score":16,"time":"00:30:35","user":"Buttinoni Ivan"},{"score":15,"time":"00:08:46","user":"Arione Massimiliano"},{"score":15,"time":"00:11:58","user":"Laffi Francesco"},{"score":15,"time":"00:11:58","user":"van Heijster Michel"},{"score":15,"time":"00:13:29","user":"Mariani Daniele"},{"score":15,"time":"00:13:53","user":"Mrakovcic Tony"},{"score":15,"time":"00:14:12","user":"Braco Stefano"},{"score":15,"time":"00:20:25","user":"Sustek Miroslav"},{"score":14,"time":"00:07:24","user":"Tanasa Ionut"},{"score":14,"time":"00:09:10","user":"kibish sergey"},{"score":14,"time":"00:09:50","user":"Giuliano Andrea"},{"score":14,"time":"00:13:48","user":"Paradi\u017e Dejan"},{"score":14,"time":"00:14:57","user":"Menozzi Manuele Menozzi"},{"score":14,"time":"00:17:38","user":"Agapie Igor"},{"score":14,"time":"00:19:45","user":"Semprini Federico"},{"score":14,"time":"00:26:42","user":"Soravia Mattia"},{"score":13,"time":"00:05:37","user":"Caputi Salvatore"},{"score":13,"time":"00:07:47","user":"Mitrovic Stefan"},{"score":13,"time":"00:09:32","user":"Campagnano Pietro"},{"score":13,"time":"00:10:45","user":"PEGORER Giovanni"},{"score":13,"time":"00:17:23","user":"Lancioni Luca"},{"score":13,"time":"00:21:53","user":"Iannone Emanuele"},{"score":12,"time":"00:05:49","user":"Rossi Michele"},{"score":12,"time":"00:09:03","user":"Raffo Luca"},{"score":12,"time":"00:10:37","user":"bono enrico"},{"score":12,"time":"00:11:16","user":"Giordano Claudio"},{"score":12,"time":"00:12:12","user":"Vocella Simon"},{"score":12,"time":"00:20:40","user":"LORUSSO GIOIA"},{"score":12,"time":"00:22:06","user":"mai andrea"},{"score":12,"time":"00:22:50","user":"Donato Giuseppe Donato"},{"score":11,"time":"00:06:19","user":"Saba Luca"},{"score":11,"time":"00:15:37","user":"Torresi Stefano"},{"score":11,"time":"00:21:40","user":"ALBERO GIOVANNI"},{"score":11,"time":"00:26:20","user":"Huig Paul"},{"score":10,"time":"00:04:31","user":"Gaspari Emanuele"},{"score":10,"time":"00:08:59","user":"Cardinali Andrea Cardinali"},{"score":10,"time":"00:09:21","user":"Aiello Alfredo"},{"score":10,"time":"00:12:32","user":"Mazzarini Cristiano"},{"score":10,"time":"00:14:34","user":"Pagnin Alessandro"},{"score":10,"time":"00:23:24","user":"Foligatti Alan"},{"score":9,"time":"00:11:33","user":"Bellini Andrea"},{"score":8,"time":"00:11:55","user":"Braglia Massimiliano"},{"score":8,"time":"00:14:03","user":"Romanello Andrea"},{"score":8,"time":"00:14:09","user":"Coi Antonio"},{"score":7,"time":"00:06:59","user":"Biancardi Emanuele"},{"score":7,"time":"00:13:54","user":"Oggiano Silvia"},{"score":5,"time":"00:08:35","user":"Heinz Lukas"},{"score":4,"time":"00:21:31","user":"Carella Antonino"},{"score":2,"time":"00:02:04","user":"Antonelli Guido"},{"score":2,"time":"00:09:51","user":"Antony Melo"},{"score":1,"time":"00:18:41","user":"Djordjevic Tamara"}])
+                        }, 2000);
+                    });
+                };
+                $scope.props = {
+                    columns: $scope.columns,
+                    rows: $scope.getData(),
+                    filter: $scope.input,
+                    filterCols: ['user', 'score'],
+                    nestedDirectivesText: 'Text in nested directive'
+                }
+                $scope.adaptors = ['NgPromise'];
+                $scope.partials = {
+                    test: 'testt'
+                }
+                $scope.config = {
+                    decorators: {
+                        tooltip: Ractive.decorators.Tooltip,
+                        spoilerBox: Ractive.decorators.spoilerBox
+                    }
+                }
+                
+                //datepicker
+                $scope.propsDatepicker = {
+                    date: new Date(),
+                    mode: 'datetime'
+                }
+                
+                $scope.propsStepper = {
+                    value: 0
+                }
+            });
+            
+            $(document).ready(function () {
+                angular.bootstrap(document, ['test']);
+            });
+    </script>
+</html>
